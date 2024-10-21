@@ -18,6 +18,50 @@
     <!-- ..assets/libs/flot/css/float-chart.css -->
     <!-- Custom CSS -->
     <link href="../dist/css/style.min.css" rel="stylesheet">
+    <style>
+        /* Tùy chỉnh cho thông báo */
+        .custom-alert {
+            position: fixed; /* Đặt thông báo ở vị trí cố định */
+            top: 100px;
+            right: 10px;
+            width: auto;
+            height: 50px;
+            max-width: 300px;
+            z-index: 9999; /* Đảm bảo thông báo nằm trên các thành phần khác */
+            border-radius: 8px;
+            font-size: 1.1em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Hiệu ứng mờ dần khi hiển thị */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Nút đóng (X) được tùy chỉnh) */
+        .custom-alert .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #333;
+            font-size: 1.2em;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+
+        .custom-alert .close:hover {
+            color: #000;
+            opacity: 1;
+        }
+    </style>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -27,6 +71,7 @@
 </head>
 
 <body>
+
     <!-- ============================================================== -->
     <!-- Preloader - style you can find in spinners.css -->
     <!-- ============================================================== -->
@@ -207,7 +252,7 @@
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="javascript:void(0)"><i class="ti-settings m-r-5 m-l-5"></i> Account Setting</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="javascript:void(0)"><i class="fa fa-power-off m-r-5 m-l-5"></i> Logout</a>
+                                <a class="dropdown-item" href="index.php?act=log_out"><i class="fa fa-power-off m-r-5 m-l-5"></i> Logout</a>
                                 <div class="dropdown-divider"></div>
                                 <div class="p-l-30 p-10"><a href="javascript:void(0)" class="btn btn-sm btn-success btn-rounded">View Profile</a></div>
                             </div>
@@ -253,3 +298,4 @@
             <!-- ============================================================== -->
             <!-- Bread crumb and right sidebar toggle -->
             <!-- ============================================================== -->
+             

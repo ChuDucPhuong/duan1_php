@@ -2,6 +2,22 @@
     <div class="import_more">
         <a href="index.php?act=addsp"><input type="button" value="Nhập thêm"></a>
     </div>
+    <?php if (isset($_SESSION['message'])): ?>
+            <div id="alert-message" class="alert alert-<?php echo $_SESSION['msg_type']; ?> alert-dismissible fade show custom-alert" role="alert">
+                <?php 
+                    // Hiển thị thông báo
+                    echo $_SESSION['message']; 
+                    
+                    // Xóa thông báo sau khi hiển thị
+                    unset($_SESSION['message']);
+                    unset($_SESSION['msg_type']);
+                ?>
+                <!-- Nút X để đóng thông báo -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <?php endif; ?>
         <div class="khung_list_title" style="width: 100%;height: 50px;">
             <h1>Danh sách sản phẩm</h1>
         </div>
@@ -29,12 +45,13 @@
                             <th>TÊN SẢN PHẨM</th>
                             <th>ẢNH SẢN PHẨM</th>
                             <th>GIÁ SẢN PHẨM</th>
-                            <th>MÔ TẢ</th>
+                            <th>Tên danh mục</th>
                             <th>SỰ KIỆN</th>
                         </tr>
                         <?php 
-                            foreach ($listsanpham as $key) {
+                            foreach ($listsanpham as $key) :
                                 extract($key);
+                                $tendm=load_ten_dm($id_danhmuc);
                                 $suasp = "index.php?act=suasp&id_sp=".$id_sp;
                                 $xoasp = "index.php?act=xoasp&id_sp=".$id_sp;
                                 $hinhpath = "../upload/".$img_sp;
@@ -43,21 +60,22 @@
                                 }else{
                                     $hinh = "no Img";
                                 }
-                                echo '
+                                ?>
+                             
                                 <tr>
-                                <td> ' . $id_sp.'</td>
-                                <td>' . $name_sp .'</td>
-                                <td>'.$hinh.'
+                                <td><?=$id_sp?></td>
+                                <td><?=$name_sp?></td>
+                                <td><?=$hinh?></td>
 
-                                <td>' . $price_sp .'</td>
-                                <td>' . $mota_sp .'</td>
-                                <td><a href="'.$suasp.'">
+                                <td><?=$price_sp?></td>
+                                <td><?=$tendm?></td>
+                                <td><a href="<?=$suasp?>">
                                 <input type="button" value="Sửa" class="check"></a> 
-                                <a href="'.$xoasp.'">
+                                <a href="<?=$xoasp?>" onclick="return confirm('Bạn chắc muốn xóa');">
                                 <input type="button" value="Xóa" class="check" ></a></td>
                             </tr>
-                                ';
-                            }
+                                
+                            <?php endforeach
                         ?>
                         
                     </table>

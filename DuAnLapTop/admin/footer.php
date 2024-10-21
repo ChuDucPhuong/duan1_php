@@ -39,6 +39,17 @@
     <script src="../assets/libs/flot/jquery.flot.crosshair.js"></script>
     <script src="../assets/libs/flot.tooltip/js/jquery.flot.tooltip.min.js"></script>
     <script src="../dist/js/pages/chart/chart-page-init.js"></script>
+    <script>
+        // Tự động ẩn thông báo sau 2 giây (2000ms)
+        setTimeout(function() {
+            var alertMessage = document.getElementById('alert-message');
+            if (alertMessage) {
+                // Sử dụng Bootstrap's alert function để ẩn thông báo
+                alertMessage.classList.remove('show');
+                alertMessage.classList.add('fade');
+            }
+        }, 3000);
+    </script>
 
 </body>
 

@@ -16,13 +16,33 @@
                             <th>THAO TÁC</th>
                         </tr>
                         <?php 
+                         function get_ttdh($status_bill) {
+                            switch ($status_bill) {
+                                case 0:
+                                    return "Đơn hàng mới";
+                                case 1:
+                                    return "Đang xử lý";
+                                case 2:
+                                    return "Đang giao hàng";
+                                case 3:
+                                    return "Giao thành công";
+                                case 4:
+                                    return "Hủy đơn hàng";
+                                default:
+                                    return "Không xác định";
+                            }
+                        }
                             foreach ($list_bill as $key) {
                                 extract($key);
                                 $suasp = "index.php?act=suabill&id_bill=".$key["id_bill"];
                                 $xoasp = "index.php?act=xoabill&id_bill=".$key["id_bill"];
                                 
                                 $slhang = dem_sl_mat_hang($key["id_bill"]);
+                                
                                 $status_product = get_ttdh($key["status_bill"]);
+                                
+                                
+                                
                                 echo '
                                 <tr style="border-bottom: 1px solid #B2B2B2;">
                                 <td> ' . $key["id_bill"].'</td>

@@ -10,27 +10,55 @@
         </div>
         <div class="show_update">
         <form action="index.php?act=update_bill" method="post" enctype="multipart/form-data">
-           <div class="Nhap_ten_sp">
-            <label for="" >
-                Tình trạng đơn hàng :
-            </label>
-            <br>
-            <select name="status_bill" id="" style="margin-left: 80px;">
-                <option value="0">Đơn hàng mới</option>
-                <option value="1">Đang sử lý</option>
-                <option value="2">Đang giao hàng</option>
-                <option value="3">Giao thành công</option>
-                <option value="4">Hủy đơn hàng</option>
-                </select>
-           </div>
-           </div>
-            <div class="chucnang">
-            <input type="hidden" name="id_bill" value="<?=$id_bill?>">
-            <input type="submit" name="capnhat" id="" value="Cập nhật" value="Sửa" style="color: #fff;background-color: #28b779;border-color: #28b779; border-radius: 2px; width: 80px; height: 35px; cursor: pointer;">
-                <a href="index.php?act=don_hang" style="padding-left: 10px;">
-                    <input type="button" id="" value="Danh sách" style="color: #fff;background-color: #da542e;border-color: #da542e; border-radius: 2px; width: 80px; height: 35px; cursor: pointer;">
-                </a>
-            </div>
+        <div class="Nhap_ten_sp">
+    <label for="">Tình trạng đơn hàng :</label>
+    <br>
+    <select name="status_bill" id="status_bill" style="margin-left: 80px;" <?= ($status_bill == 4 || $status_bill == 3) ? 'disabled' : ''; ?> onchange="updateStatusMessage()">
+        <option value="0" <?= ($status_bill == 0) ? 'selected' : ''; ?>>Đơn hàng mới</option>
+        <option value="1" <?= ($status_bill == 1) ? 'selected' : ''; ?>>Đang xử lý</option>
+        <option value="2" <?= ($status_bill == 2) ? 'selected' : ''; ?>>Đang giao hàng</option>
+        <option value="3" <?= ($status_bill == 3) ? 'selected' : ''; ?>>Giao thành công</option>
+        <option value="4" <?= ($status_bill == 4) ? 'selected' : ''; ?>>Hủy đơn hàng</option>
+    </select>
+</div>
+
+<div class="status_message" id="status_message" style="color: red; font-weight: bold; <?= ($status_bill == 4) ? '' : 'display: none;'; ?>">
+    <?php if ($status_bill == 4): ?>
+        Đơn hàng đã hủy.
+    <?php endif; ?>
+</div>
+
+<div class="chucnang">
+    <input type="hidden" name="id_bill" value="<?=$id_bill?>">
+    
+    <?php if ($status_bill != 4): ?>
+        <!-- Nút Cập nhật nếu đơn hàng chưa bị hủy -->
+        <input type="submit" name="capnhat" id="" value="Cập nhật" style="color: #fff;background-color: #28b779;border-color: #28b779; border-radius: 2px; width: 80px; height: 35px; cursor: pointer;">
+    <?php else: ?>
+        <!-- Hiển thị thông báo nếu đơn hàng đã bị hủy -->
+        <p style="color: red; font-weight: bold;">Đơn hàng đã hủy. Không thể cập nhật.</p>
+    <?php endif; ?>
+    
+    <a href="index.php?act=don_hang" style="padding-left: 10px;">
+        <input type="button" id="" value="Danh sách" style="color: #fff;background-color: #da542e;border-color: #da542e; border-radius: 2px; width: 80px; height: 35px; cursor: pointer;">
+    </a>
+</div>
+
+<script>
+    function updateStatusMessage() {
+        const statusSelect = document.getElementById('status_bill');
+        const statusMessageDiv = document.getElementById('status_message');
+        
+        // Check the selected value
+        if (statusSelect.value == "4") {
+            statusMessageDiv.textContent = 'Đơn hàng đã hủy.';
+            statusMessageDiv.style.display = 'block'; // Show the message
+        } else {
+            statusMessageDiv.style.display = 'none'; // Hide the message
+        }
+    }
+</script>
+
             <div class="xuatsp" style="width: 100%; height: 800px;">
             <table  style="width: 100%; height: 50%; text-align: center;">
                         <tr style="border-bottom: 1px solid #B2B2B2; background-color: #ced3d894;">
@@ -62,6 +90,7 @@
             if (isset($thongbao) && $thongbao != "") {
                 echo $thongbao;
             }
+            
             ?>
         </form>
         </div>

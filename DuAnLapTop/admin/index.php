@@ -1,4 +1,6 @@
 <?php
+ ob_start();
+ session_start();
 include "../model/pdo.php";
 include "../model/danh_muc.php";
 include "../model/sanpham.php";
@@ -6,24 +8,25 @@ include "header.php";
 include "../model/taikhoan.php";
 include "../model/binhluan.php";
 include "../model/cart.php";
+include "../check_login.php";
 if (isset($_GET['act'])) {
     $act = $_GET['act'];
     switch ($act) {
+        case 'log_out':
+            session_unset();
+            header("Location: ../index.php");
+            $_SESSION['message'] = "Đăng xuất thành công!";
+               $_SESSION['msg_type'] = "success";
+            break;
         case 'adddm':
             if (isset($_POST['themmoi']) && ($_POST['themmoi'])) {
-                if ($_POST['tenloai'] == '') {
-                    echo '
-                        <script>
-                        function thongbao(){
-                         alert("Xin vui lòng nhập vào ô trống !");
-                        }
-                        thongbao();
-                        </script>
-                        ';
+                if (empty($_POST['tenloai'])) {
+                    $error = "Tên loại không được để trống";
                 } else {
-                    $tenloai = $_POST['tenloai'];
+                    $tenloai = htmlspecialchars($_POST['tenloai']);
                     insert_danhmuc($tenloai);
-                    $thongbao = "Thêm thành công";
+                    $_SESSION['message'] = "Thêm thành công!";
+                     $_SESSION['msg_type'] = "success";
                 }
             }
             include "danhmuc/danhmuc_add.php";
@@ -35,23 +38,30 @@ if (isset($_GET['act'])) {
         case 'suadm':
             if (isset($_GET['id_danhmuc']) && ($_GET['id_danhmuc'] > 0)) {
                 $sua_dm = load_one($_GET['id_danhmuc']);
+                
             }
             include "danhmuc/danhmuc_update.php";
             break;
         case 'xoadm':
             if (isset($_GET['id_danhmuc']) && ($_GET['id_danhmuc'])) {
                 delete_danhmuc($_GET['id_danhmuc']);
+                $_SESSION['message'] = "Xóa  thành công!";
+                     $_SESSION['msg_type'] = "success";
             }
-            $sql = " select * from danhmuc order by id_danhmuc";
-            $xuatDM = pdo_query($sql);
+            $xuatDM = load_danh_all();
             include "danhmuc/danhmuc_list.php";
             break;
         case 'updatedm':
             if (isset($_POST['capnhat']) && ($_POST['capnhat'])) {
+                if (empty($_POST['tenloai'])) {
+                    $error = "Tên loại không được để trống";
+                } else {
                 $id_danhmuc = $_POST['id'];
                 $name_danhmuc = $_POST['ten'];
                 update_dm($id_danhmuc, $name_danhmuc);
-                $thongbao = "Cập nhật thành công";
+               $_SESSION['message'] = "Cập nhật  thành công!";
+                $_SESSION['msg_type'] = "success"; 
+            }
             }
             $load_dm = load_danh_all();
             include "danhmuc/danhmuc_update.php";
@@ -61,38 +71,49 @@ if (isset($_GET['act'])) {
 
         case 'addsp':
             if (isset($_POST['themmoi']) && ($_POST['themmoi'])) {
-                $taget_div = "../upload/";
-                $taget_file = $taget_div . basename($_FILES['img_sp']['name']);
-                if ($_POST['name_sp'] == '' || $_POST['price_sp'] == '' || $_POST['id_danhmuc'] == '' || $taget_file == '' || $_POST['mota_sp'] == '') {
-                    echo '
-                        <script>
-                        function thongbao(){
-                         alert("Xin vui lòng nhập vào ô trống !");
-                        }
-                        thongbao();
-                        </script>
-                        ';
-                } else {
-                    $name_sp = $_POST['name_sp'];
-                    $price_sp = $_POST['price_sp'];
-                    $id_danhmuc = $_POST['id_danhmuc'];
+                $target_dir = "../upload/";
+                $target_file = $target_dir . basename($_FILES['img_sp']['name']);
+                
+                // Initialize error messages
+                $errorName = $errorPrice = $errorID = $errorImg = $errorDcr = '';
+            
+                // Validate input fields
+                if (empty($_POST['name_sp'])) {
+                    $errorName = "Tên sản phẩm không được để trống";
+                }
+                if (empty($_POST['price_sp'])) {
+                    $errorPrice = "Giá sản phẩm không được để trống";
+                }
+                if (empty($_POST['id_danhmuc'])) {
+                    $errorID = "ID danh mục không được để trống";
+                }
+                if (empty($_FILES['img_sp']['name'])) {
+                    $errorImg = "Hình ảnh sản phẩm không được để trống";
+                }
+                if (empty($_POST['mota_sp'])) {
+                    $errorDcr = "Mô tả sản phẩm không được để trống";
+                }
+            
+                if (empty($errorName) && empty($errorPrice) && empty($errorID) && empty($errorImg) && empty($errorDcr)) {
+                    $name_sp = htmlspecialchars($_POST['name_sp']);
+                    $price_sp = htmlspecialchars($_POST['price_sp']);
+                    $id_danhmuc = htmlspecialchars($_POST['id_danhmuc']);
                     $img_sp = $_FILES['img_sp']['name'];
-                    $taget_div = "../upload/";
-                    $taget_file = $taget_div . basename($_FILES['img_sp']['name']);
-                    if (move_uploaded_file($_FILES['img_sp']['tmp_name'], $taget_file)) {
-                        //echo "chill";
+                    $mota_sp = htmlspecialchars($_POST['mota_sp']);
+            
+              
+                    if (move_uploaded_file($_FILES['img_sp']['tmp_name'], $target_file)) {
+                        insert_sanpham($name_sp, $img_sp, $price_sp, $mota_sp, $id_danhmuc);
+                        $_SESSION['message'] = "Thêm sản phẩm thành công!";
+                        $_SESSION['msg_type'] = "success";
                     } else {
-                        //echo "chill";
+                        $_SESSION['message'] = "Lỗi khi tải ảnh lên!";
+                        $_SESSION['msg_type'] = "danger";
                     }
-                    $mota_sp = $_POST['mota_sp'];
-                    insert_sanpham($name_sp, $img_sp, $price_sp, $mota_sp, $id_danhmuc);
-                    $thongbao = "
-                    <script>
-                    alert('Thêm sản phẩm thành công!');
-                </script>
-                    ";
                 }
             }
+            
+            
             $listDM = load_danh_all();
             include "sanpham/sanpham_add.php";
             break;
@@ -113,12 +134,15 @@ if (isset($_GET['act'])) {
             }
             $listsanpham = load_sanpham($kyw, $id_danhmuc);
             $listDM = load_danh_all();
+            
             include "sanpham/sanpham_list.php";
             break;
 
         case 'xoasp':
             if (isset($_GET['id_sp']) && ($_GET['id_sp'] > 0)) {
                 delete_sanpham($_GET['id_sp']);
+                $_SESSION['message'] = "Xóa sản phẩm thành công!";
+                $_SESSION['msg_type'] = "success"; 
             }
             $listsanpham = load_sanpham("", 0);
             include "sanpham/sanpham_list.php";
@@ -134,22 +158,53 @@ if (isset($_GET['act'])) {
 
         case 'updatesp':
             if (isset($_POST['capnhat']) && ($_POST['capnhat'])) {
-                $id_sp = $_POST['id_sp'];
-                $id_danhmuc = $_POST['id_danhmuc'];
-                $name_sp = $_POST['name_sp'];
-                $price_sp = $_POST['price_sp'];
-                $mota_sp = $_POST['mota_sp'];
-                $img_sp = $_FILES['img_sp']['name'];
-                $taget_div = "../upload/";
-                $taget_file = $taget_div . basename($_FILES['img_sp']['name']);
-                // var_dump($_POST);die;
-                if (move_uploaded_file($_FILES['img_sp']['tmp_name'], $taget_file)) {
-                } else {
+                $errorName = $errorPrice = $errorID = $errorImg = $errorDcr = '';
+            
+                // Validate input fields
+                if (empty($_POST['name_sp'])) {
+                    $errorName = "Tên sản phẩm không được để trống";
                 }
-                update_sanpham($id_sp, $name_sp, $img_sp, $price_sp, $mota_sp, $id_danhmuc);
-                $thongbao = "Cập nhật thành công";
+                if (empty($_POST['price_sp'])) {
+                    $errorPrice = "Giá sản phẩm không được để trống";
+                }
+                if (empty($_POST['id_danhmuc'])) {
+                    $errorID = "ID danh mục không được để trống";
+                }
+                
+                if (empty($_POST['mota_sp'])) {
+                    $errorDcr = "Mô tả sản phẩm không được để trống";
+                }
+                if (empty($errorName) && empty($errorPrice) && empty($errorID) && empty($errorDcr)) {
+                    $id_sp = $_POST['id_sp'];
+                    $id_danhmuc = $_POST['id_danhmuc'];
+                    $name_sp = $_POST['name_sp'];
+                    $price_sp = $_POST['price_sp'];
+                    $mota_sp = $_POST['mota_sp'];
+                    $img_sp = $_FILES['img_sp']['name'];
+                    $taget_div = "../upload/";
+                    $taget_file = $taget_div . basename($_FILES['img_sp']['name']);
+                   
+                    if (move_uploaded_file($_FILES['img_sp']['tmp_name'], $taget_file)) {
+                    } 
+                    update_sanpham($id_sp, $name_sp, $img_sp, $price_sp, $mota_sp, $id_danhmuc);
+                    $_SESSION['message'] = "Cập nhật sản phẩm thành công!";
+                    $_SESSION['msg_type'] = "success"; 
+                }else{
+                    $id_sp = $_POST['id_sp'];
+                    if (isset($id_sp) && ($id_sp > 0)) {
+                        $sanpham = load_one_sanpham($id_sp);
+                    }
+                    $listDM = load_danh_all();
+                    include "sanpham/sanpham_update.php";
+                    break;
+                }
+
+
+
+
+                
             }
-            //    var_dump('OOOOOOOOOOOOOOOO');die;
+          
             $listDM = load_danh_all();
             $listsanpham = load_sanpham("", 0);
             include "sanpham/sanpham_list.php";
@@ -256,6 +311,7 @@ if (isset($_GET['act'])) {
             $list_tk_tien_thang = loadall_thongke_tien_thang();
             include 'thongke/doanhthu.php';
             break;
+            
         default:
             include "home.php";
             break;
@@ -263,6 +319,7 @@ if (isset($_GET['act'])) {
 } else {
     include "home.php";
 }
-include "footer.php"
+include "footer.php";
+ob_end_flush();
 
 ?>
