@@ -413,5 +413,4 @@
         include "font_end/home.php";
      }
      include "font_end/footer.php";
-     ob_end_flush();
-?>
+
